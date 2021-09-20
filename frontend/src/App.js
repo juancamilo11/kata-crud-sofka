@@ -11,6 +11,35 @@ const Store = createContext(initialState)
 
 const Form = () => {
   const formRef = useRef(null);
+  const {dispatch} = useContext(Store);
+
+
+  const onAdd = (event) => {
+    event.preventDefault();
+
+    const request = {
+      name: state.name,
+      id: null,
+      completed: false
+    };
+
+
+    fetch(HOST_API + "/todo", {
+      method: "POST",
+      body: JSON.stringify(request),
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
+      .then(response => response.json())
+      .then((todo) => {
+        dispatch({ type: "add-item", item: todo });
+        setState({ name: "", description: "" });
+        formRef.current.reset();
+      });
+  }
+
+
   return <form ref={formRef}>
     <input
       type="text"
