@@ -3,7 +3,8 @@ import React, { useContext, useReducer, useEffect, useRef, useState, createConte
 const HOST_API = "http://localhost:8080/api";
 
 const initialState = {
-  list: []
+  list: [],
+  item: {}
 };
 
 const Store = createContext(initialState)
@@ -11,8 +12,8 @@ const Store = createContext(initialState)
 
 const Form = () => {
   const formRef = useRef(null);
-  const {dispatch} = useContext(Store);
-  const [state, setState] = useState({});
+  const { dispatch, state: { item } } = useContext(Store);
+  const [ state, setState ] = useState(item);
 
   const onAdd = (event) => {
     event.preventDefault();
@@ -39,16 +40,41 @@ const Form = () => {
       });
   }
 
+  const onEdit = (event) => {
+    event.preventDefault();
+
+    const request = {
+      name: state.name,
+      id: item.id,
+      completed: item.isCompleted
+    };
+
+
+    fetch(HOST_API + "/todo", {
+      method: "PUT",
+      body: JSON.stringify(request),
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
+      .then(response => response.json())
+      .then((todo) => {
+        dispatch({ type: "update-item", item: todo });
+        setState({ name: "" });
+        formRef.current.reset();
+      });
+  }
 
   return <form ref={formRef}>
     <input
       type="text"
       name="name"
+      defaultValue={item.name}
       onChange={(event)=>{
         setState({...state, name: event.target.value})
-      }}></input>
-
-    <button onClick={onAdd}>Agregar</button>
+    }}></input> 
+    { item.id && <button onClick={onEdit}>Actualizar</button> }
+    { !item.id && <button onClick={onAdd}>Crear</button> }
   </form>
 }
 
@@ -70,6 +96,10 @@ const List = () => {
     }).then((list) => {
       dispatch({ type: "delete-item", id })
     })
+  };
+
+  const onEdit = (todo) => {
+    dispatch({ type: "edit-item", item: todo })
   };
 
   return <div>
@@ -99,8 +129,16 @@ const List = () => {
 
 function reducer(state, action){
   switch (action.type) {
+    case "update_item": 
+      const listUpdateEdit = state.list.map((item) => {
+        if( item.id === action.item.id){
+          return action.item;
+        }
+        return item;
+      });
+      return {...state, list: listUpdateEdit, item: {}}
     case "delete-item":
-      const listUpdate = state.filter((item) => {
+      const listUpdate = state.list.filter((item) => {
         return item.id !== action.id;
       });
       return {...state, list: listUpdate}
