@@ -1,4 +1,4 @@
-import React, { useContext, useReducer, useEffect, useRef } from 'react';
+import React, { useContext, useReducer, useEffect, useRef, useState, createContext } from 'react';
 
 const HOST_API = "http://localhost:8080/api";
 
@@ -12,7 +12,7 @@ const Store = createContext(initialState)
 const Form = () => {
   const formRef = useRef(null);
   const {dispatch} = useContext(Store);
-
+  const [state, setState] = useState({});
 
   const onAdd = (event) => {
     event.preventDefault();
@@ -34,7 +34,7 @@ const Form = () => {
       .then(response => response.json())
       .then((todo) => {
         dispatch({ type: "add-item", item: todo });
-        setState({ name: "", description: "" });
+        setState({ name: "" });
         formRef.current.reset();
       });
   }
@@ -47,6 +47,7 @@ const Form = () => {
       onChange={(event)=>{
         setState({...state, name: event.target.value})
       }}></input>
+
     <button onClick={onAdd}>Agregar</button>
   </form>
 }
@@ -112,7 +113,7 @@ const StoreProvider = ({ children }) => {
 function App() {
   return <StoreProvider>
     <List/>
-
+    <Form />
   </StoreProvider>
 }
 
