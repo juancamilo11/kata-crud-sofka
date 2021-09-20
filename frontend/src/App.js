@@ -116,7 +116,7 @@ const List = () => {
           return <tr key={todo.id}>
             <td>{todo.id}</td>
             <td>{todo.name}</td>
-            <td>{todo.isCompleted}</td>  
+            <td>{todo.isCompleted === true ? 'SI' : 'NO'}</td>  
             <td><button onClick={() => onDelete(todo.id)}>Eliminar</button></td>
             <td><button onClick={() => onEdit(todo)}>Editar</button></td>  
           </tr>
