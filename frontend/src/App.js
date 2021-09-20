@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useReducer } from 'react';
 
 const HOST_API = "http://localhost:8080/api";
 
@@ -32,6 +32,30 @@ const List = () => {
       </tbody>
     </table>
   </div>
+}
+
+
+function reducer(state, action){
+  switch (action.type) {
+    case 'update-list':
+      return{...state, list: action.list}
+    case 'add-item':
+      const newList = state.list;
+      newList.push(action.item);
+      return{...state, list: newList}
+    default:
+      return state;
+  }
+}
+
+const StoreProvider = ({ children }) => {
+  
+  const[state, dispatch] = useReducer(reducer, initialState);
+
+  return<Store.Provider value={{state,dispatch}}>
+    {children}
+  </Store.Provider>
+
 }
 
 function App() {
